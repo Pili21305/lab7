@@ -1,0 +1,147 @@
+//************************
+// Pilar Trujillo 21305
+// LAB7
+//************************
+// Librerías
+//************************
+#include <Arduino.h>
+#include <Wire.h>
+#include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
+#include <driver/adc.h>
+#include <stdint.h>
+
+//************************
+// Definiciones
+//************************
+#define pot1 35
+#define pot2 34
+
+
+#define resolution 8
+
+uint8_t decenas1, unidades1, decimal1;
+uint8_t contador = 0;
+
+float voltaje1;
+
+int azul = 0;
+float verde = 0.0;
+//************************
+// configuracion Lcd
+//************************
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+//************************
+// Prototipos de funciones
+//************************
+
+//************************
+// Variables
+//************************
+
+//************************
+// ISRs
+//************************
+
+//************************
+// Setup
+//************************
+void setup()
+{
+
+  Serial.begin(115200);
+  Serial.println("Se configuro Serial 0");
+  Serial2.begin(115200);
+
+  lcd.init();
+  lcd.backlight();
+
+ /* pinMode(Led1, OUTPUT);
+  pinMode(Led2, OUTPUT);
+  pinMode(Led3, OUTPUT);*/
+
+  // configuracionPWM();
+/*if (voltaje1 != voltaje1) {
+//Configuración 
+lcd.setCursor(0,1);
+lcd.print(voltaje1);
+voltaje1 = voltaje1;
+Serial.println("El valor actual del voltaje en el potenciomoetro 1 es:");
+Serial.println(voltaje1);
+Serial2.write('v');
+Serial2.write(unidades1);
+Serial2.write(decimal1);
+Serial2.write(decimal1);
+Serial.println("Se envió Dato");*/
+   }
+
+//************************
+// loop principal
+//************************
+void loop()
+{
+   while (Serial2.available() > 0) {
+    char c = Serial2.read();
+    if (c == 'C') {
+      // Se detectó un mensaje de la TIVA C
+      int cpuValue = Serial2.parseInt(); // Leer el valor del contador
+      // Leer el encabezado "POTC "
+      while (Serial2.read() != 'P') {} // Esperar a que llegue la 'P'
+      Serial2.read(); // Leer la 'O'
+      Serial2.read(); // Leer la 'T'
+      Serial2.read(); // Leer la 'C'
+      float potcValue = Serial2.parseFloat(); // Leer el valor del potenciómetro
+      lcd.setCursor(6, 0);
+      lcd.print("Potc");
+      lcd.setCursor(6, 1);
+      lcd.print(potcValue);
+      lcd.setCursor(11, 0);
+      lcd.print("CPU");
+      lcd.setCursor(11, 1);
+      lcd.print(cpuValue);
+    }}
+  
+    // Update LCD
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Pot verde: ");
+    lcd.print(verde);
+    lcd.setCursor(0, 1);
+    lcd.print("CPU: ");
+    lcd.print(azul);
+   
+
+  voltaje1 = analogReadMilliVolts(pot1) / 10.0;
+
+  int temp1 = voltaje1;
+
+  int brilloR = (256 / 3.3) * voltaje1;
+  decenas1 = temp1 / 100.0;
+  temp1 = temp1 - decenas1 * 100.0;
+  unidades1 = temp1 / 10.0;
+  temp1 = temp1 - unidades1 * 10.0;
+  decimal1 = temp1;
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("rojo:");
+  lcd.setCursor(0, 1);
+  lcd.print(decenas1);
+  lcd.print('.');
+  lcd.print(unidades1);
+  lcd.print(decimal1);
+
+ // analogWrite(Led1, voltaje1);
+
+  lcd.setCursor(10, 0);
+  lcd.print("verde:");
+  lcd.setCursor(12, 1);
+  lcd.print(contador);
+  Serial2.read();
+
+  lcd.setCursor(5, 0);
+  lcd.print("azul:");
+  
+  delay(200);
+}
