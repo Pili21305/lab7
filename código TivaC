@@ -1,0 +1,119 @@
+//**********************************************************************
+// Pilar Trujillo 21305
+//LAB7
+//**********************************************************************
+// Librerías
+//**********************************************************************
+#include <Wire.h> 
+
+
+//**********************************************************************
+//Definiciones
+//**********************************************************************
+
+
+#define LEDR RED_LED
+#define LEDB BLUE_LED
+#define LEDG GREEN_LED
+
+/*int LedR = voltaje1
+int LedV = voltaje1
+int LedA = voltaje1*/
+
+
+int pot1 = A3;
+int botInc = PUSH1;
+int botDec = PUSH2;
+
+int contador = 0;
+int PWMrojo, PWMazul, PWMverde;
+
+uint8_t decenas1, unidades1, decimal1;
+float voltaje1;
+//**********************************************************************
+//Configuración LCD
+//********************************************************************** 
+//**********************************************************************
+//Prototipos de funciones
+//**********************************************************************
+
+
+//**********************************************************************
+//Variables 
+//**********************************************************************
+
+//**********************************************************************
+//ISRs
+//**********************************************************************
+
+
+//**********************************************************************
+//Setup
+//**********************************************************************
+
+void setup() {
+ Serial.begin(115200); 
+  Serial2.begin(115200);
+  
+  pinMode(botInc, INPUT_PULLUP);
+  pinMode(botDec, INPUT_PULLUP);
+}
+
+//* *********************************************************************
+//Loop principal
+//**********************************************************************
+
+void loop() {
+
+  int sensorValue = analogRead(pot1);
+  int voltage = sensorValue * (3.3 / 4095.0);  
+  
+  if (digitalRead(botInc) == LOW)
+    {
+        contador++;
+        if (contador > 255)
+        {
+            contador = 0;
+        }
+        delay(200);
+        Serial2.write(contador);
+    }
+
+    if (digitalRead(botDec) == LOW)
+    {
+        contador--;
+        if (contador < 0)
+        {
+            contador = 255;
+        }
+        delay(200);
+        Serial2.write(contador);
+    }
+  voltaje1 = analogRead(pot1) / 10.0;
+
+  int temp1 = voltaje1;
+
+  int brilloR = (256 / 3.3) * voltaje1;
+  decenas1 = temp1 / 100.0;
+  temp1 = temp1 - decenas1 * 100.0;
+  unidades1 = temp1 / 10.0;
+  temp1 = temp1 - unidades1 * 10.0;
+  decimal1 = temp1;
+
+  
+  PWMrojo = (((255)*(voltaje1))/(3.3));
+  PWMazul = (((255)*(voltaje1))/(3.3));
+  PWMverde = ((contador));
+
+
+  analogWrite(LEDR,PWMrojo);
+  analogWrite(LEDG,PWMazul);
+  analogWrite(LEDB,PWMverde);
+
+  Serial2.print("verde");
+  Serial2.println(contador);
+  Serial2.print("Azul");
+  Serial2.print(voltage);
+
+  delay(1000);
+}
